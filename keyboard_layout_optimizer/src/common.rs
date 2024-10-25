@@ -23,11 +23,7 @@ use std::{
 #[clap(name = "Keyboard layout evaluation")]
 pub struct Options {
     /// Path to ngram files
-    #[clap(
-        short,
-        long,
-        default_value = "ngrams/deu_mixed_wiki_web_0.6_eng_news_typical_wiki_web_0.4"
-    )]
+    #[clap(short, long, default_value = "ngrams/eng_wiki_1m")]
     pub ngrams: String,
 
     /// Filename of evaluation configuration file to use

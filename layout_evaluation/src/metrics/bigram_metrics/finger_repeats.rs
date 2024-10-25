@@ -4,6 +4,8 @@
 //!
 //! *Note:* In contrast to ArneBab's version of the metric, thumbs are excluded.
 
+use crate::sval::SvalKeyDirection;
+
 use super::BigramMetric;
 
 use ahash::AHashMap;
@@ -64,50 +66,85 @@ impl BigramMetric for FingerRepeats {
         {
             return Some(0.0);
         }
-
         let pos1 = k1.key.matrix_position;
-        let pos2 = k2.key.matrix_position;
+        let center_keys = [
+            (2, 2),
+            (5, 2),
+            (8, 2),
+            (11, 2),
+            (14, 2),
+            (17, 2),
+            (20, 2),
+            (23, 2),
+        ];
         let is_thumb: bool = k1.key.finger == Finger::Thumb;
+        if is_thumb {
+            return Some(weight * self.same_key_offset);
+        }
+        let closest_center = center_keys
+            .iter()
+            .min_by_key(|(x, y)| pos1.0.abs_diff(*x) + pos1.1.abs_diff(*y))
+            .unwrap();
+        let sval_key_1 = SvalKeyDirection::from_key(&k1.key, closest_center);
+        let sval_key_2 = SvalKeyDirection::from_key(&k2.key, closest_center);
 
-        let upwards: bool = pos2.1 < pos1.1;
-        let downwards: bool = pos2.1 > pos1.1;
-        let inwards: bool = if k1.key.hand == Hand::Left {
-            pos1.0 < pos2.0
-        } else {
-            pos1.0 > pos2.0
-        };
-        let outwards: bool = if k1.key.hand == Hand::Left {
-            pos1.0 > pos2.0
-        } else {
-            pos1.0 < pos2.0
-        };
+        // The scale:
+        // 0 = as if there's no SFB, would as easily type this as alternating fingers
+        // 1 = as annoying as a curling SFB on a regular keyboard
 
-        let dist_in_line = if is_thumb {
-            pos1.0.abs_diff(pos2.0) as f64
-        } else {
-            pos1.1.abs_diff(pos2.1) as f64
-        };
-        let dist_lateral = if is_thumb {
-            pos1.1.abs_diff(pos2.1) as f64
-        } else {
-            pos1.0.abs_diff(pos2.0) as f64
-        };
+        // center-south is virtually free, count as 0
+        const CENTER_SOUTH: f64 = 0.0;
+        // like east-center, or north-center
+        const TO_CENTER: f64 = 1.0;
+        // center-north
+        const CENTER_NORTH: f64 = 0.3;
+        // ex center-east on a left hand, or center-west on a right hand
+        // also virtualy free
+        const INWARD_ROLL: f64 = 0.05;
+        // ex center-west on a left hand, or center-east on a right hand
+        const OUTWARD_ROLL: f64 = 3.0;
+        // ex east-west or west-east
+        const WALL_TO_WALL_LATERAL: f64 = 1.75;
+        // ex north-south or south-north
+        const WALL_TO_WALL_VERTICAL: f64 = 1.75;
+        // ex south-west or east-north
+        const WALL_TO_WALL_OTHER: f64 = 0.5;
 
-        let direction_factor = if (is_thumb && inwards) || (!is_thumb && upwards) {
-            self.stretch_factor
-        } else if (is_thumb && outwards) || (!is_thumb && downwards) {
-            self.curl_factor
+        let inward_direction = if k1.key.hand == Hand::Left {
+            SvalKeyDirection::East
         } else {
-            1.0
+            SvalKeyDirection::West
         };
-
+        let sval_factor = match (sval_key_1, sval_key_2) {
+            (_, _) if sval_key_1 == sval_key_2 => {
+                // the double-presses
+                match sval_key_1 {
+                    SvalKeyDirection::North => 1.0,
+                    SvalKeyDirection::South => 0.1,
+                    SvalKeyDirection::East => 1.0,
+                    SvalKeyDirection::West => 1.0,
+                    SvalKeyDirection::Center => 0.2,
+                }
+            }
+            (SvalKeyDirection::Center, _) => match sval_key_2 {
+                SvalKeyDirection::South => CENTER_SOUTH,
+                SvalKeyDirection::North => CENTER_NORTH,
+                lateral => {
+                    if lateral == inward_direction {
+                        INWARD_ROLL
+                    } else {
+                        OUTWARD_ROLL
+                    }
+                }
+            },
+            (_, SvalKeyDirection::Center) => TO_CENTER,
+            (SvalKeyDirection::West, SvalKeyDirection::East)
+            | (SvalKeyDirection::East, SvalKeyDirection::West) => WALL_TO_WALL_LATERAL,
+            (SvalKeyDirection::North, SvalKeyDirection::South)
+            | (SvalKeyDirection::South, SvalKeyDirection::North) => WALL_TO_WALL_VERTICAL,
+            (_, _) => WALL_TO_WALL_OTHER,
+        };
         let finger_factor = self.finger_factors.get(&k1.key.finger);
-
-        let cost = finger_factor
-            * (self.same_key_offset
-                + direction_factor * dist_in_line
-                + self.lateral_factor * dist_lateral);
-
-        Some(weight * cost)
+        return Some(weight * finger_factor * sval_factor);
     }
 }

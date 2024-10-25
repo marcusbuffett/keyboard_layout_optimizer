@@ -43,7 +43,7 @@ pub trait UnigramMetric: Send + Sync + UnigramMetricClone + fmt::Debug {
         let n_worst: usize = env::var("N_WORST")
             .ok()
             .and_then(|s| s.parse().ok())
-            .unwrap_or(3);
+            .unwrap_or(15);
 
         let total_weight = total_weight.unwrap_or_else(|| unigrams.iter().map(|(_, w)| w).sum());
         let cost_iter = unigrams

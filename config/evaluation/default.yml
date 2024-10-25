@@ -77,14 +77,14 @@ metrics:
       # Intended factors for finger load. Thumb values are ignored.
       intended_loads:
         [Left, Pinky]: 1.0
-        [Left, Ring]: 1.6
+        [Left, Ring]: 1.4
         [Left, Middle]: 2.0
         [Left, Index]: 2.0
         [Left, Thumb]: 2.0
         [Right, Thumb]: 2.0
         [Right, Index]: 2.0
         [Right, Middle]: 2.0
-        [Right, Ring]: 1.6
+        [Right, Ring]: 1.4
         [Right, Pinky]: 1.0
 
   # Each hand's load shall be close to 50%
@@ -100,7 +100,7 @@ metrics:
   # Each keystroke incurs a cost (defined in the keyboard's layout config)
   key_costs:
     enabled: true
-    weight: 20.0
+    weight: 60.0
     normalization:
       type: weight_found
       value: 1.0
@@ -141,12 +141,21 @@ metrics:
     params:
       null: null
 
+  scissoring:
+    enabled: true
+    weight: 1500.0
+    normalization:
+      type: weight_found
+      value: 1.0
+    params:
+      null: null
+
   # If both keys corresponding to a bigram belong to the same finger, a cost is counted.
   # The cost can be weighted by the individual keys and if they are performed by stretching
   # or curling the finger. Also accounted for is whether there is lateral or in-line movement.
   finger_repeats:
     enabled: true
-    weight: 780.0
+    weight: 1500.0
     normalization:
       type: weight_found
       value: 1.0
@@ -160,14 +169,17 @@ metrics:
         Pinky: 1.2
       # Factor applied if the repeat consists of a movement
       # in line of the finger "outwards", i.e. by stretching the finger
-      stretch_factor: 1.2
+      stretch_factor: 0.75
       # Factor applied if the repeat consists of a movement
       # in line of the finger "inwards", i.e. by curling the finger
-      curl_factor: 1.1
+      curl_factor: 0.1
       # Factor applied if the repeat consists of a lateral movement
-      lateral_factor: 1.5
+      inward_lateral_factor: 0.5
+      outward_lateral_factor: 1.0
+      lateral_factor: 1.0
       # Cost to apply if the finger repeat happens on the same key
-      same_key_offset: 0.25
+      # Doesn't really matter, since it's not like any layout can affect this
+      same_key_offset: 0.1
 
   # Put costs on some key combinations that are hard to describe otherwise
   manual_bigram_penalty:
@@ -206,11 +218,8 @@ metrics:
         [[17, 2], [17, 2]]: 0.3
         [[17, 3], [17, 3]]: 0.5
 
-  # Depending on which fingers of the same hand are used to hit the keys of a bigram,
-  # how many rows were crossed and in which direction the movement occurs, costs are
-  # counted.
   movement_pattern:
-    enabled: true
+    enabled: false
     weight: 100.0
     normalization:
       type: weight_found
@@ -310,7 +319,7 @@ metrics:
   # depending on whether the three keys corresponding to the trigram are "in line" ("rolling
   # movement") or if there is a directional change.
   no_handswitch_in_trigram:
-    enabled: true
+    enabled: false
     weight: 400.0
     normalization:
       type: weight_found
@@ -335,7 +344,7 @@ metrics:
   # handswitch or not, factors are applied. Trigrams starting with one of a list of specified
   # symbols are excluded.
   secondary_bigrams:
-    enabled: true
+    enabled: false
     weight: 0.1
     normalization:
       type: weight_found
@@ -377,7 +386,7 @@ metrics:
       exclude_rows: [3]
 
   oxey_inward_rolls:
-    enabled: true
+    enabled: false
     weight: -2.0
     normalization:
       type: weight_all
@@ -388,7 +397,7 @@ metrics:
       exclude_chars: ["\n"]
 
   oxey_outward_rolls:
-    enabled: true
+    enabled: false
     weight: -1.0
     normalization:
       type: weight_all

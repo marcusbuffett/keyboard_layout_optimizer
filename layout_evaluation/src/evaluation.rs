@@ -50,6 +50,7 @@ pub struct MetricParameters {
 
     pub symmetric_handswitches: Option<WeightedParams<symmetric_handswitches::Parameters>>,
     pub finger_repeats: Option<WeightedParams<finger_repeats::Parameters>>,
+    pub scissoring: Option<WeightedParams<scissoring::Parameters>>,
     pub manual_bigram_penalty: Option<WeightedParams<manual_bigram_penalty::Parameters>>,
     pub movement_pattern: Option<WeightedParams<movement_pattern::Parameters>>,
     pub no_handswitch_after_unbalancing_key:
@@ -149,6 +150,7 @@ impl Evaluator {
 
         // bigram metrics
         add_metric!(bigram_metric, finger_repeats, FingerRepeats);
+        add_metric!(bigram_metric, scissoring, Scissoring);
         add_metric!(bigram_metric, manual_bigram_penalty, ManualBigramPenalty);
         add_metric!(bigram_metric, movement_pattern, MovementPattern);
         add_metric!(

@@ -5,6 +5,7 @@ pub mod metrics;
 pub mod ngram_mapper;
 pub mod ngrams;
 pub mod results;
+pub mod sval;
 
 #[cfg(test)]
 mod tests {

@@ -15,6 +15,7 @@ pub mod movement_pattern;
 pub mod no_handswitch_after_unbalancing_key;
 pub mod oxey_lsbs;
 pub mod oxey_sfbs;
+pub mod scissoring;
 pub mod symmetric_handswitches;
 
 /// BigramMetric is a trait for metrics that iterates over weighted bigrams.
@@ -50,7 +51,7 @@ pub trait BigramMetric: Send + Sync + BigramMetricClone + fmt::Debug {
         let n_worst: usize = env::var("N_WORST")
             .ok()
             .and_then(|s| s.parse().ok())
-            .unwrap_or(3);
+            .unwrap_or(5);
 
         let total_weight = total_weight.unwrap_or_else(|| bigrams.iter().map(|(_, w)| w).sum());
         let cost_iter = bigrams
