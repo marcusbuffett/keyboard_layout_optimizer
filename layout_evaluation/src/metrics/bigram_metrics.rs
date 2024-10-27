@@ -1,7 +1,7 @@
 //! The `metrics` module provides a trait for bigram metrics.
 use keyboard_layout::layout::{LayerKey, Layout};
 
-use ordered_float::OrderedFloat;
+use ordered_float::{Float, OrderedFloat};
 use priority_queue::DoublePriorityQueue;
 use std::{env, fmt};
 
@@ -63,6 +63,11 @@ pub trait BigramMetric: Send + Sync + BigramMetricClone + fmt::Debug {
 
                 cost_option.map(|cost| (i, bigram, cost))
             });
+        let total_cost_positive: f64 = cost_iter
+            .clone()
+            .filter(|(_, _, cost)| cost.is_sign_positive())
+            .map(|(_, _, cost)| cost)
+            .sum();
 
         let (total_cost, msg) = if show_worst {
             let (total_cost, worst, worst_nonfixed) = cost_iter.fold(
@@ -70,16 +75,18 @@ pub trait BigramMetric: Send + Sync + BigramMetricClone + fmt::Debug {
                 |(mut total_cost, mut worst, mut worst_nonfixed), (i, bigram, cost)| {
                     total_cost += cost;
 
-                    worst.push(i, OrderedFloat(cost.abs()));
-                    if !bigram.0.is_fixed && !bigram.1.is_fixed {
-                        worst_nonfixed.push(i, OrderedFloat(cost.abs()));
-                    }
+                    if cost.is_sign_positive() {
+                        worst.push(i, OrderedFloat(cost));
+                        if !bigram.0.is_fixed && !bigram.1.is_fixed {
+                            worst_nonfixed.push(i, OrderedFloat(cost));
+                        }
 
-                    if worst.len() > n_worst {
-                        worst.pop_min();
-                    }
-                    if worst_nonfixed.len() > n_worst {
-                        worst_nonfixed.pop_min();
+                        if worst.len() > n_worst {
+                            worst.pop_min();
+                        }
+                        if worst_nonfixed.len() > n_worst {
+                            worst_nonfixed.pop_min();
+                        }
                     }
 
                     (total_cost, worst, worst_nonfixed)
@@ -97,7 +104,7 @@ pub trait BigramMetric: Send + Sync + BigramMetricClone + fmt::Debug {
                             "{}{} ({:>5.2}%)",
                             gram.0,
                             gram.1,
-                            100.0 * cost.into_inner() / total_cost,
+                            100.0 * cost.into_inner() / total_cost_positive,
                         )
                     })
                     .collect();
@@ -113,12 +120,12 @@ pub trait BigramMetric: Send + Sync + BigramMetricClone + fmt::Debug {
             }
 
             let worst_nonfixed_msgs = gen_msgs(worst_nonfixed);
-            if !worst_nonfixed_msgs.is_empty() {
-                msgs.push(format!(
-                    "Worst non-fixed: {}",
-                    worst_nonfixed_msgs.join(", ")
-                ))
-            }
+            // if !worst_nonfixed_msgs.is_empty() {
+            //     msgs.push(format!(
+            //         "Worst non-fixed: {}",
+            //         worst_nonfixed_msgs.join(", ")
+            //     ))
+            // }
 
             let msg = Some(msgs.join(";  "));
 

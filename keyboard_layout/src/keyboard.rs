@@ -152,7 +152,20 @@ impl Keyboard {
     pub fn plot(&self, key_labels: &[String]) -> String {
         let mut reg = handlebars::Handlebars::new();
         reg.register_escape_fn(handlebars::no_escape);
-        let labels: AHashMap<usize, String> = key_labels.iter().cloned().enumerate().collect();
+        let labels: AHashMap<usize, String> = key_labels
+            .iter()
+            .cloned()
+            // .map(|s| {
+            //     dbg!(&s);
+            //     // check if alpha
+            //     if s.chars().all(|c| c.is_alphabetic()) {
+            //         return s;
+            //     } else {
+            //         return " ".repeat(s.len());
+            //     }
+            // })
+            .enumerate()
+            .collect();
         reg.render_template(&self.plot_template, &labels).unwrap()
     }
 

@@ -475,7 +475,13 @@ impl Layout {
                 '\n' => '\u{23ce}',
                 '\t' => '\u{21e5}',
                 '' => '\u{2327}',
-                normal_char => normal_char,
+                normal_char => {
+                    if normal_char.is_alphabetic() {
+                        normal_char
+                    } else {
+                        '_'
+                    }
+                }
             }
         };
         let key_chars: Vec<String> = self

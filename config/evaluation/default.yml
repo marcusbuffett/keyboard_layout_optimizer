@@ -76,7 +76,7 @@ metrics:
     params:
       # Intended factors for finger load. Thumb values are ignored.
       intended_loads:
-        [Left, Pinky]: 1.0
+        [Left, Pinky]: 1.2
         [Left, Ring]: 1.4
         [Left, Middle]: 2.0
         [Left, Index]: 2.0
@@ -85,12 +85,12 @@ metrics:
         [Right, Index]: 2.0
         [Right, Middle]: 2.0
         [Right, Ring]: 1.4
-        [Right, Pinky]: 1.0
+        [Right, Pinky]: 1.2
 
   # Each hand's load shall be close to 50%
   hand_disbalance:
     enabled: true
-    weight: 40.0
+    weight: 100.0
     normalization:
       type: fixed
       value: 1.0
@@ -219,7 +219,7 @@ metrics:
         [[17, 3], [17, 3]]: 0.5
 
   movement_pattern:
-    enabled: false
+    enabled: true
     weight: 100.0
     normalization:
       type: weight_found
@@ -229,35 +229,21 @@ metrics:
       # to: Finger for second symbol of the bigram
       # cost: Cost to count for such a movement
       finger_switch_factor:
-        - { from: [Left, Pinky],   to: [Left, Ring],    cost: 4 }
-        - { from: [Left, Pinky],   to: [Left, Middle],  cost: 2 }
+        - { from: Pinky,   to: Ring,    cost: 4 }
+        - { from: Pinky,   to: Middle,  cost: 4 }
 
-        - { from: [Left, Ring],    to: [Left, Pinky],   cost: 6 }
-        - { from: [Left, Ring],    to: [Left, Middle],  cost: 2 }
-        - { from: [Left, Ring],    to: [Left, Index], cost: 0.1 }
+        - { from: Ring,    to: Pinky,   cost: 6 }
+        - { from: Ring,    to: Middle,  cost: 0.5 }
+        - { from: Ring,    to: Index, cost: 0.5 }
 
-        - { from: [Left, Middle],  to: [Left, Pinky],   cost: 3 }
-        - { from: [Left, Middle],  to: [Left, Ring],    cost: 5 }
-        - { from: [Left, Middle],  to: [Left, Index], cost: 0.6 }
+        - { from: Middle,  to: Pinky,   cost: 2 }
+        - { from: Middle,  to: Ring,    cost: 2 }
+        - { from: Middle,  to: Index, cost: 0.2 }
 
-        - { from: [Left, Index], to: [Left, Pinky],   cost: 0.1 }
-        - { from: [Left, Index], to: [Left, Ring],    cost: 0.3 }
-        - { from: [Left, Index], to: [Left, Middle],  cost: 0.9 }
+        - { from: Index, to: Pinky,   cost: 0.1 }
+        - { from: Index, to: Ring,    cost: 0.3 }
+        - { from: Index, to: Middle,  cost: 0.9 }
 
-        - { from: [Right, Pinky],   to: [Right, Ring],    cost: 4 }
-        - { from: [Right, Pinky],   to: [Right, Middle],  cost: 2 }
-
-        - { from: [Right, Ring],    to: [Right, Pinky],   cost: 6 }
-        - { from: [Right, Ring],    to: [Right, Middle],  cost: 2 }
-        - { from: [Right, Ring],    to: [Right, Index], cost: 0.1 }
-
-        - { from: [Right, Middle],  to: [Right, Pinky],   cost: 3 }
-        - { from: [Right, Middle],  to: [Right, Ring],    cost: 5 }
-        - { from: [Right, Middle],  to: [Right, Index], cost: 0.6 }
-
-        - { from: [Right, Index], to: [Right, Pinky],   cost: 0.1 }
-        - { from: [Right, Index], to: [Right, Ring],    cost: 0.3 }
-        - { from: [Right, Index], to: [Right, Middle],  cost: 0.9 }
 
       # Finger lengths
       finger_lengths:
@@ -275,7 +261,7 @@ metrics:
       # If the movement is directed downwards from a short towards a long
       # or upwards from a long towards a short finger,
       # the cost is multiplied by this factor
-      short_down_to_long_or_long_up_to_short_factor: 2.0
+      short_down_to_long_or_long_up_to_short_factor: 1.0
 
       # The cost is multiplied by the same_row_offset plus number of crossed rows.
       # If same_row_offset is zero, movement patterns on the same row have zero cost.

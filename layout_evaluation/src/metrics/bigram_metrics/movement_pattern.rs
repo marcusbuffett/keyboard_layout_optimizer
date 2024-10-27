@@ -6,7 +6,7 @@ use super::BigramMetric;
 
 use ahash::AHashMap;
 use keyboard_layout::{
-    key::{Finger, Hand, HandFingerMap},
+    key::{Finger, FingerMap, Hand, HandFingerMap},
     layout::{LayerKey, Layout},
 };
 
@@ -14,8 +14,8 @@ use serde::Deserialize;
 
 #[derive(Copy, Clone, Deserialize, Debug)]
 pub struct FingerSwitchCost {
-    pub from: (Hand, Finger),
-    pub to: (Hand, Finger),
+    pub from: Finger,
+    pub to: Finger,
     pub cost: f64,
 }
 
@@ -44,10 +44,12 @@ impl MovementPattern {
     pub fn new(params: &Parameters) -> Self {
         let mut finger_switch_factor =
             HandFingerMap::with_default(HandFingerMap::with_default(0.0));
-        params.finger_switch_factor.iter().for_each(|fsc| {
-            let m = finger_switch_factor.get_mut(&fsc.from.0, &fsc.from.1);
-            m.set(&fsc.to.0, &fsc.to.1, fsc.cost);
-        });
+        for hand in [Hand::Left, Hand::Right] {
+            params.finger_switch_factor.iter().for_each(|fsc| {
+                let m = finger_switch_factor.get_mut(&hand, &fsc.from);
+                m.set(&hand, &fsc.to, fsc.cost);
+            });
+        }
         let finger_lengths = HandFingerMap::with_hashmap(&params.finger_lengths, 1.0);
 
         Self {
@@ -85,6 +87,11 @@ impl BigramMetric for MovementPattern {
             return Some(0.0);
         }
 
+        // let distance = (f1 as i8) - (f2 as i8);
+        // if distance == 1 {
+        //     return Some(0.0);
+        // }
+
         let pos1 = k1.key.matrix_position;
         let pos2 = k2.key.matrix_position;
 
@@ -99,11 +106,6 @@ impl BigramMetric for MovementPattern {
         let num_rows = pos1.1.abs_diff(pos2.1) as f64;
 
         let finger_switch_factor = self.finger_switch_factor.get(&h1, &f1).get(&h2, &f2);
-        let direction_factor = if (downwards && first_is_shorter) || (upwards && first_is_longer) {
-            1.0 + finger_length_diff.abs() * self.short_down_to_long_or_long_up_to_short_factor
-        } else {
-            1.0
-        };
 
         let unbalancing_factor = 1.0
             + (self.unbalancing_factor
@@ -116,11 +118,7 @@ impl BigramMetric for MovementPattern {
                 as f64
                 * self.lateral_stretch_factor;
 
-        let cost = (self.same_row_offset + num_rows * num_rows)
-            * finger_switch_factor
-            * direction_factor
-            * unbalancing_factor
-            * lateral_stretch_factor;
+        let cost = finger_switch_factor;
 
         Some(weight * cost)
     }

@@ -187,6 +187,11 @@ impl<T: Copy> FingerMap<T> {
     pub fn set(&mut self, finger: &Finger, val: T) {
         self.0[*finger as usize] = val
     }
+
+    #[inline(always)]
+    pub fn get_mut(&mut self, finger: &Finger) -> &mut T {
+        &mut self.0[*finger as usize]
+    }
 }
 
 /// A map that associates each finger of each hand with a value

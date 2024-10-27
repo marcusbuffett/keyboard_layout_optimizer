@@ -93,14 +93,14 @@ impl BigramMetric for FingerRepeats {
         // 1 = as annoying as a curling SFB on a regular keyboard
 
         // center-south is virtually free, count as 0
-        const CENTER_SOUTH: f64 = 0.0;
+        const CENTER_SOUTH: f64 = -0.5;
         // like east-center, or north-center
         const TO_CENTER: f64 = 1.0;
         // center-north
         const CENTER_NORTH: f64 = 0.3;
         // ex center-east on a left hand, or center-west on a right hand
         // also virtualy free
-        const INWARD_ROLL: f64 = 0.05;
+        const INWARD_ROLL: f64 = 0.1;
         // ex center-west on a left hand, or center-east on a right hand
         const OUTWARD_ROLL: f64 = 3.0;
         // ex east-west or west-east
