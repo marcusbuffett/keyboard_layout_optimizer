@@ -311,9 +311,13 @@ pub fn optimize(
                         let evaluation_result = evaluator.evaluate_layout(&layout);
                         println!(
                             "{}: {} (score: {})\n{}",
-                            format!("New best in generation {}:", step.iteration)
-                                .yellow()
-                                .bold(),
+                            format!(
+                                "New best in generation {} (pop: {}):",
+                                step.iteration,
+                                evaluated_population.individuals().len()
+                            )
+                            .yellow()
+                            .bold(),
                             layout_str,
                             format!("{}", evaluation_result.total_cost()).yellow(),
                             layout.plot(),

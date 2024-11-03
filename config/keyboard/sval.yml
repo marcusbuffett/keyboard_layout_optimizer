@@ -88,19 +88,19 @@ keyboard:
         5,   5,  3,  6,  3]     # Right pinky
       
       # Thumb row (row 4)
-      - [2, 2, 2, 2,            # Left thumb cluster
-        2, 2, 2, 2]            # Right thumb cluster
+      - [2, 3, 2, 2,            # Left thumb cluster
+        2, 3, 2, 2]            # Right thumb cluster
 
   unbalancing_positions:
     # Main key rows (rows 1-3)
-    - [[0, 0], [0, 0], [0,0], [0,0], [0, 0],     # Left pinky
-      [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],     # Left ring
+    - [[0, 0], [0, 0], [0,0], [0,5], [0, 0],     # Left pinky
+      [0, 0], [0, 0], [0, 0], [0, 10], [0, 0],     # Left ring
       [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],     # Left middle
       [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],     # Left index
       [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],     # Right index
       [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],     # Right middle
-      [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],     # Right ring
-      [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]     # Right pinky
+      [0, 0], [0, 10], [0, 0], [0, 0], [0, 0],     # Right ring
+      [0, 0], [0, 5], [0, 0], [0, 0], [0, 0]]     # Right pinky
     
     # Thumb row (row 4)
     - [[0, 0], [0, 0], [0, 0], [0, 0],             # Left thumb cluster

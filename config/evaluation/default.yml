@@ -143,7 +143,7 @@ metrics:
 
   scissoring:
     enabled: true
-    weight: 1500.0
+    weight: 4000.0
     normalization:
       type: weight_found
       value: 1.0
@@ -166,7 +166,7 @@ metrics:
         Index: 0.8
         Middle: 1.0
         Ring: 1.1
-        Pinky: 1.2
+        Pinky: 1.4
       # Factor applied if the repeat consists of a movement
       # in line of the finger "outwards", i.e. by stretching the finger
       stretch_factor: 0.75
@@ -180,6 +180,7 @@ metrics:
       # Cost to apply if the finger repeat happens on the same key
       # Doesn't really matter, since it's not like any layout can affect this
       same_key_offset: 0.1
+      thumb_bigram: 1.0
 
   # Put costs on some key combinations that are hard to describe otherwise
   manual_bigram_penalty:
@@ -231,6 +232,7 @@ metrics:
       finger_switch_factor:
         - { from: Pinky,   to: Ring,    cost: 4 }
         - { from: Pinky,   to: Middle,  cost: 4 }
+        - { from: Pinky,   to: Index,  cost: 2 }
 
         - { from: Ring,    to: Pinky,   cost: 6 }
         - { from: Ring,    to: Middle,  cost: 0.5 }
@@ -269,7 +271,7 @@ metrics:
 
       # If the movement involves unbalancing keys (horizontally or vertically), the corresponding
       # unbalancing values are weighted with this factor and multiplied to the result.
-      unbalancing_factor: 0.5
+      unbalancing_factor: 2.0
 
       # If a movement involves a lateral stretch (the keys are more columns apart than the fingers),
       # (one plus) this factor is multiplied to the cost with the number of columns to stretch.
@@ -278,7 +280,7 @@ metrics:
   # If no handswitch occurs after hitting an "unbalancing" key (as defined in the keyboard's layout
   # config), a cost is counted depending on how far the unbalancing takes place.
   no_handswitch_after_unbalancing_key:
-    enabled: true
+    enabled: false
     weight: 36.0
     normalization:
       type: weight_found
@@ -415,7 +417,7 @@ ngram_mapper:
   # Split symbols belonging to higher layers of the layout into combinations involving modifiers
   # required to activate the layer
   split_modifiers:
-    enabled: true
+    enabled: false
     # Multiply the ngram's weight with this factor whenever the resulting ngram involves two
     # modifiers that are required for the same symbol
     same_key_mod_factor: 0.03125

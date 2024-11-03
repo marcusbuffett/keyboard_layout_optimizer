@@ -2,6 +2,8 @@
 //! (almost) neighboring fingers. Which finger combinations come with which costs is
 //! configurable.
 
+use crate::sval::SvalKeyDirection;
+
 use super::BigramMetric;
 
 use ahash::AHashMap;
@@ -107,19 +109,37 @@ impl BigramMetric for MovementPattern {
 
         let finger_switch_factor = self.finger_switch_factor.get(&h1, &f1).get(&h2, &f2);
 
-        let unbalancing_factor = 1.0
-            + (self.unbalancing_factor
-                * ((k1.key.unbalancing.0 - k2.key.unbalancing.0).abs()
-                    + (k1.key.unbalancing.1 - k2.key.unbalancing.1).abs()));
+        let mut unbalancing_factor = k1.key.unbalancing.0.abs() + k1.key.unbalancing.1.abs();
+        if unbalancing_factor == 0.0 {
+            unbalancing_factor = 1.0;
+        }
 
         let lateral_stretch_factor = 1.0
             + (f1.distance(&f2))
                 .abs_diff(k1.key.matrix_position.0.abs_diff(k2.key.matrix_position.0))
                 as f64
                 * self.lateral_stretch_factor;
+        let center_keys = [
+            (2, 2),
+            (5, 2),
+            (8, 2),
+            (11, 2),
+            (14, 2),
+            (17, 2),
+            (20, 2),
+            (23, 2),
+        ];
+        let closest_center_1 = center_keys
+            .iter()
+            .min_by_key(|(x, y)| pos1.0.abs_diff(*x) + pos1.1.abs_diff(*y))
+            .unwrap();
+        let sval_key_1 = SvalKeyDirection::from_key(&k1.key, closest_center_1);
+        if !(sval_key_1 == SvalKeyDirection::East || sval_key_1 == SvalKeyDirection::West) {
+            return Some(0.0);
+        }
 
         let cost = finger_switch_factor;
 
-        Some(weight * cost)
+        Some(weight * cost * unbalancing_factor)
     }
 }

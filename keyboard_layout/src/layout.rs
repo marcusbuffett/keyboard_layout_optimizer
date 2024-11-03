@@ -476,7 +476,8 @@ impl Layout {
                 '\t' => '\u{21e5}',
                 '' => '\u{2327}',
                 normal_char => {
-                    if normal_char.is_alphabetic() {
+                    if normal_char.is_alphabetic() || c == '"' || c == '\'' || c == ',' || c == '.'
+                    {
                         normal_char
                     } else {
                         '_'

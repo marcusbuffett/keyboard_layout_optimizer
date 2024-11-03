@@ -23,6 +23,7 @@ pub struct Parameters {
     pub curl_factor: f64,
     pub lateral_factor: f64,
     pub same_key_offset: f64,
+    pub thumb_bigram: f64,
 }
 
 #[derive(Clone, Debug)]
@@ -32,6 +33,7 @@ pub struct FingerRepeats {
     curl_factor: f64,
     lateral_factor: f64,
     same_key_offset: f64,
+    thumb_bigram: f64,
 }
 
 impl FingerRepeats {
@@ -42,6 +44,7 @@ impl FingerRepeats {
             curl_factor: params.curl_factor,
             lateral_factor: params.lateral_factor,
             same_key_offset: params.same_key_offset,
+            thumb_bigram: params.thumb_bigram,
         }
     }
 }
@@ -79,7 +82,10 @@ impl BigramMetric for FingerRepeats {
         ];
         let is_thumb: bool = k1.key.finger == Finger::Thumb;
         if is_thumb {
-            return Some(weight * self.same_key_offset);
+            if k1 == k2 {
+                return Some(weight * 1.0);
+            }
+            return Some(weight * 2.0);
         }
         let closest_center = center_keys
             .iter()
@@ -93,14 +99,14 @@ impl BigramMetric for FingerRepeats {
         // 1 = as annoying as a curling SFB on a regular keyboard
 
         // center-south is virtually free, count as 0
-        const CENTER_SOUTH: f64 = -0.5;
+        const CENTER_SOUTH: f64 = -0.0;
         // like east-center, or north-center
         const TO_CENTER: f64 = 1.0;
         // center-north
         const CENTER_NORTH: f64 = 0.3;
         // ex center-east on a left hand, or center-west on a right hand
         // also virtualy free
-        const INWARD_ROLL: f64 = 0.1;
+        const INWARD_ROLL: f64 = 0.4;
         // ex center-west on a left hand, or center-east on a right hand
         const OUTWARD_ROLL: f64 = 3.0;
         // ex east-west or west-east
@@ -108,22 +114,29 @@ impl BigramMetric for FingerRepeats {
         // ex north-south or south-north
         const WALL_TO_WALL_VERTICAL: f64 = 1.75;
         // ex south-west or east-north
-        const WALL_TO_WALL_OTHER: f64 = 0.5;
+        const WALL_TO_WALL_OTHER: f64 = 1.0;
 
+        let finger_factor = self.finger_factors.get(&k1.key.finger);
         let inward_direction = if k1.key.hand == Hand::Left {
             SvalKeyDirection::East
         } else {
             SvalKeyDirection::West
         };
+        if sval_key_1 == SvalKeyDirection::South
+            && sval_key_2 == inward_direction
+            && k1.key.finger == Finger::Index
+        {
+            return Some(weight * finger_factor * 0.2);
+        }
         let sval_factor = match (sval_key_1, sval_key_2) {
             (_, _) if sval_key_1 == sval_key_2 => {
                 // the double-presses
                 match sval_key_1 {
                     SvalKeyDirection::North => 1.0,
-                    SvalKeyDirection::South => 0.1,
+                    SvalKeyDirection::South => 0.5,
                     SvalKeyDirection::East => 1.0,
                     SvalKeyDirection::West => 1.0,
-                    SvalKeyDirection::Center => 0.2,
+                    SvalKeyDirection::Center => 0.7,
                 }
             }
             (SvalKeyDirection::Center, _) => match sval_key_2 {
@@ -144,7 +157,6 @@ impl BigramMetric for FingerRepeats {
             | (SvalKeyDirection::South, SvalKeyDirection::North) => WALL_TO_WALL_VERTICAL,
             (_, _) => WALL_TO_WALL_OTHER,
         };
-        let finger_factor = self.finger_factors.get(&k1.key.finger);
         return Some(weight * finger_factor * sval_factor);
     }
 }
