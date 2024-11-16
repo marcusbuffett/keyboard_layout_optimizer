@@ -17,10 +17,17 @@ It's a bit annoying, but the way to fill in extra spaces which don't use an alph
 To optimize a new layout, you run a command like this:
 
 ```sh
-cargo watch -x 'run  --bin optimize_genetic -- --layout-config config/keyboard/sval.yml --exclude-chars " 0123456789=(){}[]" "q0a1z w2sbx e3dtc r4fgv uhj5m iyk67 onl89 p={}(["'
+cargo watch -x 'run  --bin optimize_genetic -- --layout-config config/keyboard/sval.yml --exclude-chars " 0123456789=(){}[]" --start-layout "q0a1z w2sbx e3dtc r4fgv uhj5m iyk67 onl89 p={}(["'
 ```
 
-You need an initial layout, although in practice it doesn't really matter, unless the initial layout is very close to optimal.
+You need an initial layout, although in practice it doesn't really matter, unless the initial layout is very close to optimal. The example above begins with the standard qwerty layout.
+
+You can see a list of potentially interesting options for optimization with `cargo run  --bin optimize_genetic -- --help`. For example, to optimize a new layout while keeping certain characters fixed, for example vim users who want to keep "hjkl" where they are while optimizing everything else, you can use the `--fix` argument.
+
+```sh
+cargo watch -x 'run  --bin optimize_genetic -- --layout-config config/keyboard/sval.yml --exclude-chars " 0123456789=(){}[]" --fix 'hjkl' --start-layout "q0a1z w2sbx e3dtc r4fgv uhj5m iyk67 onl89 p={}(["'
+```
+
 
 ## Modifying for personal use
 
